@@ -12,8 +12,6 @@ public class Monster : Creature
     public MonsterType MonsterType;
     [SerializeField] private SortingGroup _sortingLayer;
 
-    public Monster MonsterAhead;
-
     private float _moveSpeed = 2f;              // 기본 이동 속도
     private float _jumpHeight = 1f;             // 점프 시 높이
     private float _jumpDistanceOffset = 0.5f;   // 점프 후 x 오프셋
@@ -24,6 +22,7 @@ public class Monster : Creature
     private Vector3 _jumpTargetPos;
     private float _jumpTimer = 0f;
 
+    private Monster _monsterAhead;
     private float _collisionThreshold = 0.5f;   // 앞 몬스터와의 최소 거리
 
     private float _targetPositionX = -0.5f;     // 타겟과 닿는 위치
@@ -74,9 +73,9 @@ public class Monster : Creature
         {
             transform.position += Vector3.left * _moveSpeed * Time.deltaTime;
 
-            if (MonsterAhead != null)
+            if (_monsterAhead != null)
             {
-                float distance = Vector3.Distance(transform.position, MonsterAhead.transform.position);
+                float distance = Vector3.Distance(transform.position, _monsterAhead.transform.position);
                 if (distance < _collisionThreshold)
                 {
                     StartJump();
@@ -89,11 +88,16 @@ public class Monster : Creature
     {
         _isJumping = true;
         _jumpStartPos = transform.position;
-        _jumpTargetPos = MonsterAhead.transform.position + new Vector3(_jumpDistanceOffset, 0f, 0f);
+        _jumpTargetPos = _monsterAhead.transform.position + new Vector3(_jumpDistanceOffset, 0f, 0f);
     }
 
     public void SetSortingGroup(int layer)
     {
         _sortingLayer.sortingOrder = layer;
+    }
+
+    public void SetMonsterAhead(Monster monster)
+    {
+        _monsterAhead = monster;
     }
 }

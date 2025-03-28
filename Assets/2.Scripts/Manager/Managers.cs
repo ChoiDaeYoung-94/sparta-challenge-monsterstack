@@ -27,6 +27,9 @@ public class Managers : MonoBehaviour
 
     private void OnDestroy()
     {
+        _gameManager.Clear();
+        _poolManager.Clear();
+
         _instance = null;
     }
 
