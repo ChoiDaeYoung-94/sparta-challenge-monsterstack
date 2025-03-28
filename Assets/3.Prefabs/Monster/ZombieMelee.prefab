@@ -9,8 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1174570720321624928}
-  - component: {fileID: 7016750400611631704}
   - component: {fileID: 8988601356910101079}
+  - component: {fileID: 7016750400611631704}
+  - component: {fileID: 2749088028914947694}
   m_Layer: 0
   m_Name: ZombieMelee
   m_TagString: Untagged
@@ -34,6 +35,21 @@ Transform:
   - {fileID: 1639109334033341928}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8988601356910101079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319310827380095937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58d6159c063b33f4fbc496f1aa32e107, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MonsterType: 0
+  _sortingLayer: {fileID: 2749088028914947694}
+  MonsterAhead: {fileID: 0}
 --- !u!95 &7016750400611631704
 Animator:
   serializedVersion: 5
@@ -55,20 +71,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &8988601356910101079
-MonoBehaviour:
+--- !u!210 &2749088028914947694
+SortingGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 319310827380095937}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58d6159c063b33f4fbc496f1aa32e107, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MonsterType: 0
-  target: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -5
+  m_SortAtRoot: 0
 --- !u!1 &2094693183665648150
 GameObject:
   m_ObjectHideFlags: 0
@@ -558,7 +572,7 @@ Transform:
   m_GameObject: {fileID: 6840219418452013153}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.038, y: 0.15200001, z: 0}
+  m_LocalPosition: {x: 0, y: 0.15200001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

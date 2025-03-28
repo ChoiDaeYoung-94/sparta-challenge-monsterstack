@@ -1,17 +1,33 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public enum MonsterType
 {
-    Melee,          // ±ÙÁ¢ °ø°İ ¸ó½ºÅÍ
-    LongRangeMelee  // ¿ø°Å¸® °ø°İ ¸ó½ºÅÍ
+    Melee,
+    Ranged
 }
 
 public class Monster : Creature
 {
     public MonsterType MonsterType;
+    [SerializeField] private SortingGroup _sortingLayer;
 
-    private float _moveSpeed;
-    public Transform target;
+    public Monster MonsterAhead;
+
+    private float _moveSpeed = 2f;              // ê¸°ë³¸ ì´ë™ ì†ë„
+    private float _jumpHeight = 1f;             // ì í”„ ì‹œ ë†’ì´
+    private float _jumpDistanceOffset = 0.5f;   // ì í”„ í›„ x ì˜¤í”„ì…‹
+    private float _jumpDuration = 0.5f;         // ì í”„ ì§€ì† ì‹œê°„
+
+    private bool _isJumping = false;
+    private Vector3 _jumpStartPos;
+    private Vector3 _jumpTargetPos;
+    private float _jumpTimer = 0f;
+
+    private float _collisionThreshold = 0.5f;   // ì• ëª¬ìŠ¤í„°ì™€ì˜ ìµœì†Œ ê±°ë¦¬
+
+    private float _targetPositionX = -0.5f;     // íƒ€ê²Ÿê³¼ ë‹¿ëŠ” ìœ„ì¹˜
+    private bool _reachedTarget = false;
 
     protected override void Initialize()
     {
@@ -20,7 +36,7 @@ public class Monster : Creature
             case MonsterType.Melee:
                 _moveSpeed = 1f;
                 break;
-            case MonsterType.LongRangeMelee:
+            case MonsterType.Ranged:
                 _moveSpeed = 1.5f;
                 break;
         }
@@ -28,14 +44,56 @@ public class Monster : Creature
 
     private void Update()
     {
-        if (target != null)
+        if (_reachedTarget)
         {
-            MoveTowardsTarget();
+            return;
+        }
+
+        if (transform.position.x <= _targetPositionX)
+        {
+            _reachedTarget = true;
+
+            return;
+        }
+
+        if (_isJumping)
+        {
+            _jumpTimer += Time.deltaTime;
+            float t = _jumpTimer / _jumpDuration;
+            Vector3 newPos = Vector3.Lerp(_jumpStartPos, _jumpTargetPos, t);
+            newPos.y += Mathf.Sin(t * Mathf.PI) * _jumpHeight;
+            transform.position = newPos;
+
+            if (t >= 1f)
+            {
+                _isJumping = false;
+                _jumpTimer = 0f;
+            }
+        }
+        else
+        {
+            transform.position += Vector3.left * _moveSpeed * Time.deltaTime;
+
+            if (MonsterAhead != null)
+            {
+                float distance = Vector3.Distance(transform.position, MonsterAhead.transform.position);
+                if (distance < _collisionThreshold)
+                {
+                    StartJump();
+                }
+            }
         }
     }
 
-    private void MoveTowardsTarget()
+    private void StartJump()
     {
-        transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.position.x, transform.position.y, transform.position.z), _moveSpeed * Time.deltaTime);
+        _isJumping = true;
+        _jumpStartPos = transform.position;
+        _jumpTargetPos = MonsterAhead.transform.position + new Vector3(_jumpDistanceOffset, 0f, 0f);
+    }
+
+    public void SetSortingGroup(int layer)
+    {
+        _sortingLayer.sortingOrder = layer;
     }
 }
