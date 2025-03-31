@@ -5,7 +5,7 @@ public class Managers : MonoBehaviour
     private static Managers _instance;
     public static Managers Instance { get => _instance; }
 
-    private GameManager _gameManager;
+    private GameManager _gameManager = new GameManager();
     public static GameManager GameManager { get => _instance._gameManager; }
 
     private PoolManager _poolManager = new PoolManager();

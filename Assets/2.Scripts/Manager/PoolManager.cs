@@ -56,7 +56,7 @@ public class PoolManager
                 GameObject activePoolObj = GameObject.Find("ActivePool");
                 parent = activePoolObj != null ? activePoolObj.transform : null;
             }
-            poolObj.transform.SetParent(parent);
+            poolObj.transform.SetParent(parent, false);
 
             return poolObj.gameObject;
         }

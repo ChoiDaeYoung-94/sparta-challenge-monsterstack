@@ -1,7 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
-using UnityEngine;
 
 public class GameManager
 {
@@ -27,9 +26,10 @@ public class GameManager
         while (!cancellationToken.IsCancellationRequested)
         {
             float waitTime = UnityEngine.Random.Range(_minSpawnTime, _maxSpawnTime);
-            await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: cancellationToken);
+            //await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: cancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(3f), cancellationToken: cancellationToken);
 
-            // 몬스터 풀에서 가져온 뒤 MonsterManager 전달 메서드 필요
+            MonsterManager.Instance.CreateMonster();
         }
     }
 }
