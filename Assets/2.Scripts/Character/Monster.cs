@@ -27,14 +27,14 @@ public class Monster : Creature
 
     private bool _isJumping = false;
     private float _jumpHeight = 1f;
-    private float _jumpDuration = 0.5f;
+    private float _jumpDuration = 0.4f;
     private float _jumpTimer = 0f;
     private float _startPositionX;
     private float _startPositionY;
     private float _finalPositionY;
 
     private bool _isDropping = false;
-    public float _dropDuration = 0.5f;
+    public float _dropDuration = 0.4f;
     private float _dropTimer = 0f;
 
     public int Line;
@@ -80,6 +80,7 @@ public class Monster : Creature
         }
     }
 
+    #region Monster State
     public void SetMove(float targetPositionX)
     {
         if (_isJumping || _isDropping)
@@ -185,7 +186,9 @@ public class Monster : Creature
             transform.localPosition = localPos;
         }
     }
+    #endregion
 
+    #region Monster Setting
     public void ResetMonster()
     {
         Initialize();
@@ -196,4 +199,5 @@ public class Monster : Creature
     {
         _sortingLayer.sortingOrder = layer;
     }
+    #endregion
 }

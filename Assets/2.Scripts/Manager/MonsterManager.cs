@@ -21,7 +21,7 @@ public class MonsterManager : MonoBehaviour
     private float _firstTargetPositionX = -0.5f;
 
     private double _updateInterval = 0.1d;
-    private double _updateJumpInterval = 0.5d;
+    private double _updateJumpInterval = 0.3d;
     private CancellationTokenSource _updateMonsterOrderingCTS;
 
     private void Awake()
@@ -67,7 +67,7 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    #region OrderMonsters Methods
+    #region UpdateMonsterOrdering Methods
     /// <summary>
     /// 각 라인, 층 순환
     /// Drop -> Move -> Jump
@@ -134,11 +134,11 @@ public class MonsterManager : MonoBehaviour
                     {
                         Vector3 lastPosition = list[i].transform.position;
                         Vector3 secondLastPosition = list[i - 1].transform.position;
-
-                        if (Vector3.Distance(lastPosition, secondLastPosition) >= _collisionThreshold - 0.05f &&
-                            Vector3.Distance(lastPosition, secondLastPosition) <= _collisionThreshold + 0.05f)
+                        float distance = Vector3.Distance(lastPosition, secondLastPosition);
+                        if (distance >= _collisionThreshold - 0.05f &&
+                            distance <= _collisionThreshold + 0.05f)
                         {
-                            list[i].SetJump(list[i - 1].transform.position.x);
+                            list[i].SetJump(secondLastPosition.x);
                             PromoteMonster(list[i]);
                             return;
                         }
@@ -153,6 +153,7 @@ public class MonsterManager : MonoBehaviour
     }
     #endregion
 
+    #region Monster Management Methods
     public void RegisterMonster(GameObject monsterObj, int line)
     {
         Monster monster = monsterObj.GetComponent<Monster>();
@@ -197,6 +198,7 @@ public class MonsterManager : MonoBehaviour
 
         OrderMonstersDropAndMove();
     }
+    #endregion
 
     int test = 0;
     public void CreateMonster()
