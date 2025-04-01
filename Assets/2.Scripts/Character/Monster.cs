@@ -27,14 +27,14 @@ public class Monster : Creature
 
     private bool _isJumping = false;
     private float _jumpHeight = 1f;
-    private float _jumpDuration = 0.4f;
+    private float _jumpDuration = 0.3f;
     private float _jumpTimer = 0f;
     private float _startPositionX;
     private float _startPositionY;
     private float _finalPositionY;
 
     private bool _isDropping = false;
-    public float _dropDuration = 0.4f;
+    public float _dropDuration = 0.3f;
     private float _dropTimer = 0f;
 
     public int Line;
@@ -45,10 +45,10 @@ public class Monster : Creature
         switch (MonsterType)
         {
             case MonsterType.Melee:
-                _moveSpeed = 1f;
+                _moveSpeed = 1.5f;
                 break;
             case MonsterType.Ranged:
-                _moveSpeed = 1.5f;
+                _moveSpeed = 2.0f;
                 break;
         }
 
@@ -65,16 +65,16 @@ public class Monster : Creature
         switch (_monsterState)
         {
             case MonsterState.Idle:
-                return;
+                break;
             case MonsterState.Move:
                 Move();
-                return;
+                break;
             case MonsterState.Jump:
                 Jump();
-                return;
+                break;
             case MonsterState.Drop:
                 Drop();
-                return;
+                break;
             default:
                 break;
         }
@@ -162,18 +162,7 @@ public class Monster : Creature
 
         _dropTimer += Time.deltaTime;
         float t = Mathf.Clamp01(_dropTimer / _dropDuration);
-        float newY;
-
-        if (t < 0.7f)
-        {
-            float tSlow = t / 0.7f;
-            newY = Mathf.Lerp(_startPositionY, _finalPositionY + 0.2f, tSlow);
-        }
-        else
-        {
-            float tFast = (t - 0.7f) / 0.3f;
-            newY = Mathf.Lerp(_finalPositionY + 0.2f, _finalPositionY, tFast);
-        }
+        float newY = Mathf.Lerp(_startPositionY, _finalPositionY, t);
 
         Vector3 localPos = transform.localPosition;
         localPos.y = newY;
@@ -185,6 +174,11 @@ public class Monster : Creature
             localPos.y = _finalPositionY;
             transform.localPosition = localPos;
         }
+    }
+
+    public bool isJumping()
+    {
+        return _isJumping;
     }
     #endregion
 
