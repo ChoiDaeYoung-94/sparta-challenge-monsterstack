@@ -26,8 +26,7 @@ public class GameManager
         while (!cancellationToken.IsCancellationRequested)
         {
             float waitTime = UnityEngine.Random.Range(_minSpawnTime, _maxSpawnTime);
-            //await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: cancellationToken);
-            await UniTask.Delay(TimeSpan.FromSeconds(3f), cancellationToken: cancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: cancellationToken);
 
             MonsterManager.Instance.CreateMonster();
         }

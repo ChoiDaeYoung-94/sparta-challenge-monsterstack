@@ -20,9 +20,10 @@ public class MonsterManager : MonoBehaviour
     private float _collisionThreshold = 0.5f;
     private float _firstTargetPositionX = -0.5f;
 
-    private double _updateInterval = 0.1d;
-    private double _updateJumpInterval = 0.3d;
-    private CancellationTokenSource _updateMonsterOrderingCTS;
+    private double _orderMonstersMoveAndDropInterval = 0.1d;
+    private double _orderMonstersJumpInterval = 0.5d;
+    private CancellationTokenSource _orderMonstersMoveAndDropCTS;
+    private CancellationTokenSource _orderMonstersJumpCTS;
 
     private void Awake()
     {
@@ -36,8 +37,10 @@ public class MonsterManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        _updateMonsterOrderingCTS?.Cancel();
-        _updateMonsterOrderingCTS?.Dispose();
+        _orderMonstersMoveAndDropCTS?.Cancel();
+        _orderMonstersMoveAndDropCTS?.Dispose();
+        _orderMonstersJumpCTS?.Cancel();
+        _orderMonstersJumpCTS?.Dispose();
         _instance = null;
     }
 
@@ -52,27 +55,32 @@ public class MonsterManager : MonoBehaviour
             }
         }
 
-        _updateMonsterOrderingCTS = new CancellationTokenSource();
-        UpdateMonsterOrdering(_updateMonsterOrderingCTS.Token).Forget();
+        _orderMonstersMoveAndDropCTS = new CancellationTokenSource();
+        UpdateMonsterOrderingMove(_orderMonstersMoveAndDropCTS.Token).Forget();
+        _orderMonstersJumpCTS = new CancellationTokenSource();
+        UpdateMonsterOrderingJump(_orderMonstersJumpCTS.Token).Forget();
     }
 
-    private async UniTask UpdateMonsterOrdering(CancellationToken token)
+    private async UniTask UpdateMonsterOrderingMove(CancellationToken token)
     {
         while (!token.IsCancellationRequested)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(_updateInterval), cancellationToken: token);
-            OrderMonstersDropAndMove();
-            await UniTask.Delay(TimeSpan.FromSeconds(_updateJumpInterval), cancellationToken: token);
+            await UniTask.Delay(TimeSpan.FromSeconds(_orderMonstersMoveAndDropInterval), cancellationToken: token);
+            OrderMonstersMoveAndDrop();
+        }
+    }
+
+    private async UniTask UpdateMonsterOrderingJump(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(_orderMonstersJumpInterval), cancellationToken: token);
             OrderMonstersJump();
         }
     }
 
     #region UpdateMonsterOrdering Methods
-    /// <summary>
-    /// 각 라인, 층 순환
-    /// Drop -> Move -> Jump
-    /// </summary>
-    private void OrderMonstersDropAndMove()
+    private void OrderMonstersMoveAndDrop()
     {
         for (int line = 0; line < LineCount; line++)
         {
@@ -88,6 +96,12 @@ public class MonsterManager : MonoBehaviour
                 {
                     if (floor != 0 && i == 0 && list[0].transform.position.x <= _firstTargetPositionX + 0.05f)
                     {
+                        int lowFloorCount = _monstersByLineAndFloor[line, floor - 1].Count;
+                        if (lowFloorCount > 3 && UnityEngine.Random.value < 0.4f)
+                        {
+                            continue;
+                        }
+
                         if (list[0].SetDrop(floor - 1))
                         {
                             DemoteMonster(list[0]);
@@ -102,10 +116,6 @@ public class MonsterManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 각 라인, 층 순환
-    /// Jump
-    /// </summary>
     private void OrderMonstersJump()
     {
         for (int line = 0; line < LineCount; line++)
@@ -113,30 +123,22 @@ public class MonsterManager : MonoBehaviour
             for (int floor = 0; floor < MaxFloor; floor++)
             {
                 List<Monster> list = _monstersByLineAndFloor[line, floor];
-                if (list.Count == 0)
+                if (list.Count == 0 || floor + 1 >= MaxFloor)
                 {
-                    continue;
-                }
-
-                if (floor + 1 >= MaxFloor)
-                {
-                    continue;
+                    break;
                 }
 
                 if (list.Count > 1)
                 {
-                    if (_monstersByLineAndFloor[line, floor + 1].Count + 1 > list.Count - 1)
-                    {
-                        continue;
-                    }
-
                     for (int i = list.Count - 1; i > 0; i--)
                     {
                         Vector3 lastPosition = list[i].transform.position;
                         Vector3 secondLastPosition = list[i - 1].transform.position;
                         float distance = Vector3.Distance(lastPosition, secondLastPosition);
                         if (distance >= _collisionThreshold - 0.05f &&
-                            distance <= _collisionThreshold + 0.05f)
+                            distance <= _collisionThreshold + 0.05f &&
+                            !list[i - 1].isJumping()                &&
+                            _monstersByLineAndFloor[line, floor + 1].Count + 1 <= i)
                         {
                             list[i].SetJump(secondLastPosition.x);
                             PromoteMonster(list[i]);
@@ -162,8 +164,6 @@ public class MonsterManager : MonoBehaviour
         monster.Line = line;
         monster.Floor = 0;
         _monstersByLineAndFloor[line, 0].Add(monster);
-
-        OrderMonstersDropAndMove();
     }
 
     public void UnregisterMonster(Monster monster)
@@ -171,8 +171,6 @@ public class MonsterManager : MonoBehaviour
         int line = monster.Line;
         int floor = monster.Floor;
         _monstersByLineAndFloor[line, floor].Remove(monster);
-
-        OrderMonstersDropAndMove();
     }
 
     private void PromoteMonster(Monster monster)
@@ -183,8 +181,6 @@ public class MonsterManager : MonoBehaviour
         _monstersByLineAndFloor[line, currentFloor].Remove(monster);
         monster.Floor = currentFloor + 1;
         _monstersByLineAndFloor[line, currentFloor + 1].Add(monster);
-
-        OrderMonstersDropAndMove();
     }
 
     private void DemoteMonster(Monster monster)
@@ -195,23 +191,17 @@ public class MonsterManager : MonoBehaviour
         _monstersByLineAndFloor[line, currentFloor].Remove(monster);
         monster.Floor = currentFloor - 1;
         _monstersByLineAndFloor[line, currentFloor - 1].Insert(0, monster);
-
-        OrderMonstersDropAndMove();
     }
     #endregion
 
     int test = 0;
     public void CreateMonster()
     {
-        //int randomLine = UnityEngine.Random.Range(0, LineCount);
-        //if (_monstersByLineAndFloor[randomLine, 0].Count >= _maxMonsterCountPerFloor)
-        //{
-        //    return;
-        //}
-
-        int randomLine = 1;
-        if (test++ >= 5)
+        int randomLine = UnityEngine.Random.Range(0, LineCount);
+        if (_monstersByLineAndFloor[randomLine, 0].Count >= _maxMonsterCountPerFloor)
+        {
             return;
+        }
 
         GameObject monsterObj = Managers.PoolManager.PopFromPool("ZombieMelee", _linePosition[randomLine]);
         RegisterMonster(monsterObj, randomLine);

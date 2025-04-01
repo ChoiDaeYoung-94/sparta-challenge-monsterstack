@@ -86,7 +86,7 @@ public class Monster : Creature
         if (_isJumping || _isDropping)
         {
             return;
-        }    
+        }
 
         _targetPositionX = targetPositionX;
         _monsterState = MonsterState.Move;

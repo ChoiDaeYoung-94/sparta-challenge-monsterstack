@@ -49,7 +49,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MonsterType: 0
+  _monsterState: 0
   _sortingLayer: {fileID: 2749088028914947694}
+  _dropDuration: 0.3
+  Line: 0
+  Floor: 0
 --- !u!114 &7975845383315328130
 MonoBehaviour:
   m_ObjectHideFlags: 0
