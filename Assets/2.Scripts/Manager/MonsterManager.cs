@@ -105,7 +105,7 @@ public class MonsterManager : MonoBehaviour
                         if (list[0].SetDrop(floor - 1))
                         {
                             DemoteMonster(list[0]);
-                            return;
+                            break;
                         }
                     }
 
@@ -142,7 +142,7 @@ public class MonsterManager : MonoBehaviour
                         {
                             list[i].SetJump(secondLastPosition.x);
                             PromoteMonster(list[i]);
-                            return;
+                            break;
                         }
                         else
                         {
@@ -194,7 +194,6 @@ public class MonsterManager : MonoBehaviour
     }
     #endregion
 
-    int test = 0;
     public void CreateMonster()
     {
         int randomLine = UnityEngine.Random.Range(0, LineCount);
